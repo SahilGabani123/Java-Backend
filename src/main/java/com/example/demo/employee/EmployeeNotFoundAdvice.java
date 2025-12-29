@@ -28,5 +28,4 @@ public class EmployeeNotFoundAdvice {
                 .status(HttpStatus.NOT_FOUND)
                 .body(new ApiResponse(false, ex.getMessage()));
     }
-
 }
