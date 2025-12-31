@@ -2,8 +2,10 @@ package com.example.demo.employee;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.employee.model.UpdateEmployeeRequest;
+import com.example.demo.exception.EmployeeNotFoundException;
 import com.example.demo.project.Project;
 import com.example.demo.project.ProjectRepository;
 
@@ -40,6 +43,9 @@ class EmployeeController {
 
 	private final EmployeeRepository repository;
     private final ProjectRepository projectRepository;
+    
+
+	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 	EmployeeController(EmployeeRepository repository, ProjectRepository projectRepository) {
 		this.repository = repository;
@@ -108,12 +114,19 @@ class EmployeeController {
             @RequestParam("personal_email") String personalEmail,
             @RequestParam("phone_number") String phoneNumber
     ) {
-        Instant joiningDate = toInstant(joiningDateStr);
-        Instant leavingDate = toInstant(leavingDateStr);
+		if (repository.existsByName(name)) {
+		    throw new IllegalArgumentException("Employee with this name already exists");
+		}
+		
+        Instant joiningDate = toInstant(joiningDateStr, "Joining Date");
+        Instant leavingDate = toInstant(leavingDateStr, "Leaving Date");
         Employee employee = new Employee(
                 name, position, joiningDate, leavingDate, 0,
                 personalEmail, companyEmail, field, phoneNumber, new ArrayList<>(), 0L
         );
+//        employee.setCreatedAt(Instant.now());
+//        employee.setUpdatedAt(null);
+
         repository.save(employee);
         return ResponseEntity.ok(
                 new ApiResponse(true, "Employee created successfully", employee)
@@ -154,6 +167,7 @@ class EmployeeController {
 
 	    Employee employee = repository.findById(id)
 	            .orElseThrow(() -> new EmployeeNotFoundException(id));
+	    
 
 	    if (req.getName() != null)
 	        employee.setName(req.getName());
@@ -161,10 +175,12 @@ class EmployeeController {
 	    if (req.getPosition() != null)
 	        employee.setPosition(req.getPosition());
 
-	    if (req.getJoiningDate() != null)
-	        employee.setJoiningDate(req.getJoiningDate());
-
-	    employee.setLeavingDate(req.getLeavingDate());
+	    if (req.getJoiningDate() != null) {
+	        Instant joiningDate = toInstant(req.getJoiningDate(), "Joining Date");
+	        employee.setJoiningDate(joiningDate);
+	    }
+	    
+        employee.setLeavingDate(req.getLeavingDate());
 
 	    if (req.getCompanyEmail() != null)
 	        employee.setCompanyEmail(req.getCompanyEmail());
@@ -185,16 +201,18 @@ class EmployeeController {
 	    );
 	}
 	
-	public static Instant toInstant(String date) {
-	    if (date == null || date.isBlank()) {
+	private Instant toInstant(String dateStr, String fieldName) {
+	    if (dateStr == null || dateStr.isBlank()) {
 	        return null;
 	    }
 
-	    DateTimeFormatter formatter =
-	            DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-	    return LocalDate.parse(date, formatter)
-	            .atStartOfDay(ZoneId.systemDefault())
-	            .toInstant();
+	    try {
+	        LocalDate localDate = LocalDate.parse(dateStr, DATE_FORMATTER);
+	        return localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+	    } catch (DateTimeParseException ex) {
+	        throw new IllegalArgumentException(
+	                fieldName + " must be in dd/MM/yyyy format"
+	        );
+	    }
 	}
 }

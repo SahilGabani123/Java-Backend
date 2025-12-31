@@ -10,9 +10,10 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.employee.ApiResponse;
 import com.example.demo.employee.Employee;
-import com.example.demo.employee.EmployeeNotFoundException;
 import com.example.demo.employee.EmployeeRepository;
 import com.example.demo.employee.PageMeta;
+import com.example.demo.exception.EmployeeNotFoundException;
+import com.example.demo.exception.ProjectNotFoundException;
 
 import jakarta.servlet.http.HttpServletRequest;
 

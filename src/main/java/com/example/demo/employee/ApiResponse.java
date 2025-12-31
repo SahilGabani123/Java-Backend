@@ -33,14 +33,12 @@ public class ApiResponse<T> {
         this.message = message;
     }
 
-    // ✅ success with data
     public ApiResponse(boolean status, String message, T data) {
         this.status = status;
         this.message = message;
         this.data = data;
     }
 
-    // ✅ success with data + meta
     public ApiResponse(boolean status, String message, T data, PageMeta meta) {
         this.status = status;
         this.message = message;
@@ -48,14 +46,12 @@ public class ApiResponse<T> {
         this.meta = meta;
     }
 
-    // ✅ error response
     public ApiResponse(boolean status, String message, Map<String, String> errors) {
         this.status = status;
         this.message = message;
         this.errors = errors;
     }
 
-    // getters
     public boolean isStatus() {
         return status;
     }

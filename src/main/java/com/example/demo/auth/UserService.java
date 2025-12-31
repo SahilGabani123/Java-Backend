@@ -2,6 +2,9 @@ package com.example.demo.auth;
 
 import com.example.demo.auth.model.LoginRequest;
 import com.example.demo.auth.model.SignupRequest;
+import com.example.demo.exception.EmailAlreadyExistsException;
+import com.example.demo.exception.InvalidCredentialsException;
+import com.example.demo.exception.PhoneAlreadyExistsException;
 import com.example.demo.security.JwtUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +28,11 @@ public class UserService {
 	public User signup(SignupRequest request) {
 
 		if (userRepository.existsByEmail(request.getEmail())) {
-			throw new RuntimeException("Email already registered");
+			throw new EmailAlreadyExistsException("Email already registered");
 		}
 
 		if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
-			throw new RuntimeException("Phone number already registered");
+			throw new PhoneAlreadyExistsException("Phone number already registered");
 		}
 
 		User user = new User();
@@ -47,13 +50,13 @@ public class UserService {
 	public String login(LoginRequest request) {
 
 		User user = userRepository.findByEmail(request.getEmail())
-				.orElseThrow(() -> new RuntimeException("Invalid email or password"));
+				.orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
 		if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-			throw new RuntimeException("Invalid email or password");
+			throw new InvalidCredentialsException("Invalid email or password");
 		}
 
-		return jwtUtil.generateToken(user.getEmail());
+		return jwtUtil.generateToken(user);
 	}
 
 	public User getUserByEmail(String email) {

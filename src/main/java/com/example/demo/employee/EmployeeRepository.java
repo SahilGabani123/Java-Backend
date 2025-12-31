@@ -25,5 +25,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 	            @Param("position") String position,
 	            @Param("search") String search,
 	            Pageable pageable);
+	 
+	 
+	 boolean existsByName(String name);
 
 }
