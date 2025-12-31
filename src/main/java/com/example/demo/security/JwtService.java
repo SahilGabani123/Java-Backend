@@ -1,6 +1,5 @@
 package com.example.demo.security;
 
-import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
@@ -66,9 +65,7 @@ public class JwtService {
 		Claims claims = extractAllClaims(token);
 		String username = claims.getSubject();
 
-		UserDetails userDetails = org.springframework.security.core.userdetails.User.withUsername(username).password("") // password
-																															// not
-																															// needed
+		UserDetails userDetails = org.springframework.security.core.userdetails.User.withUsername(username).password("")
 				.authorities("ROLE_USER").build();
 
 		return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
