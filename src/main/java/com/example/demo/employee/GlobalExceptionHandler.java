@@ -43,14 +43,15 @@ public class GlobalExceptionHandler {
     }
 
     // ===================== MISSING PARAM =====================
+    
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ApiResponse> handleMissingParams(
             MissingServletRequestParameterException ex) {
-
+    	
         String param = ex.getParameterName().replace("_", " ");
         String message = Character.toUpperCase(param.charAt(0))
-                + param.substring(1) + " is required";
+                + param.substring(1) + " is required params";
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)

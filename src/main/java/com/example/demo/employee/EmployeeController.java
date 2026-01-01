@@ -124,8 +124,6 @@ class EmployeeController {
                 name, position, joiningDate, leavingDate, 0,
                 personalEmail, companyEmail, field, phoneNumber, new ArrayList<>(), 0L
         );
-//        employee.setCreatedAt(Instant.now());
-//        employee.setUpdatedAt(null);
 
         repository.save(employee);
         return ResponseEntity.ok(
