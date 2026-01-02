@@ -32,9 +32,8 @@ import jakarta.persistence.OneToOne;
 		"employee", "field" })
 @EntityListeners(AuditingEntityListener.class)
 public class Project {
-
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	private Long id;
 
 	@JsonProperty("project_name")

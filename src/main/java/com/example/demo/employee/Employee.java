@@ -52,7 +52,7 @@ public class Employee {
 	private static final DateTimeFormatter USER_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	private Long id;
 
 	@Column(name = "name", nullable = false, unique = true)
