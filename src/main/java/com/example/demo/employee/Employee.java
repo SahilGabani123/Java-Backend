@@ -28,6 +28,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
@@ -42,15 +43,17 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
-@JsonPropertyOrder({ "id", "name", "dob", "field", "position", "joiningDate", "leavingDate", "experience", "personalEmail",
-		"companyEmail", "phone_number", "projects", "projectCount", "createdAt", "updatedAt" })
+@JsonPropertyOrder({ "id", "name", "dob", "field", "position", "joiningDate", "leavingDate", "experience",
+		"personalEmail", "companyEmail", "phone_number", "projects", "projectCount", "createdAt", "updatedAt" })
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class Employee {
 
 	private static final DateTimeFormatter USER_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-	private @Id @GeneratedValue Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
 	@Column(name = "name", nullable = false, unique = true)
 	@Size(min = 3, max = 100, message = "Name must be between 3 and 100 characters")
@@ -110,7 +113,7 @@ public class Employee {
 	@Transient
 	@JsonProperty("project_count")
 	private Long projectCount;
-	
+
 	@Column(name = "dob")
 	@JsonProperty("dob")
 	@JsonFormat(timezone = "UTC")
@@ -120,11 +123,11 @@ public class Employee {
 	Employee() {
 	}
 
-	public Employee(String name, Instant dob ,String position, Instant joiningDate, Instant leavingDate, int experience,
+	public Employee(String name, Instant dob, String position, Instant joiningDate, Instant leavingDate, int experience,
 			String personalEmail, String companyEmail, String field, String phoneNumber, List<Project> projects,
 			Long projectCount) {
 		this.name = name;
-		this.dob =dob;
+		this.dob = dob;
 		this.position = position;
 		this.joiningDate = joiningDate;
 		this.leavingDate = leavingDate;
@@ -277,13 +280,13 @@ public class Employee {
 	public void setUpdatedAt(Instant updatedAt) {
 		this.updatedAt = updatedAt;
 	}
-	
+
 	public Instant getDob() {
-	    return dob;
+		return dob;
 	}
 
 	public void setDob(Instant dob) {
-	    this.dob = dob;
+		this.dob = dob;
 	}
 
 	@Override

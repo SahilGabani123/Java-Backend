@@ -126,8 +126,6 @@ public class ProjectController {
 			throw new ProjectNotFoundException(id);
 		}
         projectRepository.deleteById(id);
-        
-
 		return ResponseEntity.ok(new ApiResponse(true, "Project deleted successfully"));
 
     }

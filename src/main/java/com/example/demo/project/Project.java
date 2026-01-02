@@ -21,125 +21,174 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
 @Entity
-@JsonPropertyOrder({ "id", "employeeId", "projectName", "projectType", "startingDate", "endingDate", "clientName", "employee", "field" }) 
+@JsonPropertyOrder({ "id", "employeeId", "projectName", "projectType", "startingDate", "endingDate", "clientName",
+		"employee", "field" })
 @EntityListeners(AuditingEntityListener.class)
 public class Project {
 
-  private @Id @GeneratedValue Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
+	@JsonProperty("project_name")
+	private String projectName;
 
-  @JsonProperty("project_name")
-  private String projectName;
+	@JsonProperty("project_type")
+	private String projectType;
 
-  @JsonProperty("project_type")
-  private String projectType;
+	@JsonProperty("starting_date")
+	private LocalDate startingDate;
 
-  @JsonProperty("starting_date")
-  private LocalDate startingDate;
+	@JsonProperty("ending_date")
+	private LocalDate endingDate;
 
-  @JsonProperty("ending_date")
-  private LocalDate endingDate;
-  
-  @JsonProperty("client_name")
-  private String clientName;
-  
-  private String field; // android / ios / web / all
+	@JsonProperty("client_name")
+	private String clientName;
 
-  @JsonProperty("employee_id")
-  private Long employeeId; // ✅ Added
-  
+	private String field; // android / ios / web / all
 
-  @CreatedDate
-  @Column(name = "created_at", updatable = false, nullable = false)
-  private Instant createdAt;
+	@JsonProperty("employee_id")
+	private Long employeeId; // ✅ Added
 
-  @LastModifiedDate
-  @Column(name = "updated_at", nullable = false)
-  private Instant updatedAt;
-  
+	@CreatedDate
+	@Column(name = "created_at", updatable = false, nullable = false)
+	private Instant createdAt;
 
+	@LastModifiedDate
+	@Column(name = "updated_at", nullable = false)
+	private Instant updatedAt;
 
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  @OneToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "id", referencedColumnName = "employeeId")
-  @JsonIgnoreProperties({ "created_at", "updated_at", "projects", "experience", "personal_email", "joining_date", "leaving_date" })
-  private Employee employee;
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "id", referencedColumnName = "employeeId")
+	@JsonIgnoreProperties({ "created_at", "updated_at", "projects", "experience", "personal_email", "joining_date",
+			"leaving_date" })
+	private Employee employee;
 
-  Project() {}
+	Project() {
+	}
 
-  Project(String projectName, String projectType, LocalDate startingDate,
-          LocalDate endingDate, String clientName, String field, Long employeeId,Employee employee) {
-    this.projectName = projectName;
-    this.projectType = projectType;
-    this.startingDate = startingDate;
-    this.endingDate = endingDate;
-    this.clientName = clientName;
-    this.field = field;
-    this.employeeId = employeeId;
-    this.employee = employee;
-  }
+	Project(String projectName, String projectType, LocalDate startingDate, LocalDate endingDate, String clientName,
+			String field, Long employeeId, Employee employee) {
+		this.projectName = projectName;
+		this.projectType = projectType;
+		this.startingDate = startingDate;
+		this.endingDate = endingDate;
+		this.clientName = clientName;
+		this.field = field;
+		this.employeeId = employeeId;
+		this.employee = employee;
+	}
 
-  // Getters and Setters
+	// Getters and Setters
 
-  public Long getId() { return id; }
-  public void setId(Long id) { this.id = id; }
+	public Long getId() {
+		return id;
+	}
 
-  public String getProjectName() { return projectName; }
-  public void setProjectName(String projectName) { this.projectName = projectName; }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-  public String getProjectType() { return projectType; }
-  public void setProjectType(String projectType) { this.projectType = projectType; }
+	public String getProjectName() {
+		return projectName;
+	}
 
-  public LocalDate getStartingDate() { return startingDate; }
-  public void setStartingDate(LocalDate startingDate) { this.startingDate = startingDate; }
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
 
-  public LocalDate getEndingDate() { return endingDate; }
-  public void setEndingDate(LocalDate endingDate) { this.endingDate = endingDate; }
+	public String getProjectType() {
+		return projectType;
+	}
 
-  public String getClientName() { return clientName; }
-  public void setClientName(String clientName) { this.clientName = clientName; }
+	public void setProjectType(String projectType) {
+		this.projectType = projectType;
+	}
 
-  public String getField() { return field; }
-  public void setField(String field) { this.field = field; }
+	public LocalDate getStartingDate() {
+		return startingDate;
+	}
 
-  public Long getEmployeeId() { return employeeId; }
-  public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
-  
-  public Employee getEmployee() { return employee; }
-  public void setEmployee(Employee employee) { this.employee = employee; }
-  
-  public Instant getCreatedAt() {
-      return createdAt;
-  }
+	public void setStartingDate(LocalDate startingDate) {
+		this.startingDate = startingDate;
+	}
 
-  public void setCreatedAt(Instant createdAt) {
-      this.createdAt = createdAt;
-  }
+	public LocalDate getEndingDate() {
+		return endingDate;
+	}
 
-  public Instant getUpdatedAt() {
-      return updatedAt;
-  }
+	public void setEndingDate(LocalDate endingDate) {
+		this.endingDate = endingDate;
+	}
 
-  public void setUpdatedAt(Instant updatedAt) {
-      this.updatedAt = updatedAt;
-  }
+	public String getClientName() {
+		return clientName;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Project)) return false;
-    Project project = (Project) o;
-    return Objects.equals(id, project.id);
-  }
+	public void setClientName(String clientName) {
+		this.clientName = clientName;
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(id);
-  }
+	public String getField() {
+		return field;
+	}
+
+	public void setField(String field) {
+		this.field = field;
+	}
+
+	public Long getEmployeeId() {
+		return employeeId;
+	}
+
+	public void setEmployeeId(Long employeeId) {
+		this.employeeId = employeeId;
+	}
+
+	public Employee getEmployee() {
+		return employee;
+	}
+
+	public void setEmployee(Employee employee) {
+		this.employee = employee;
+	}
+
+	public Instant getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(Instant createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public Instant getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(Instant updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (!(o instanceof Project))
+			return false;
+		Project project = (Project) o;
+		return Objects.equals(id, project.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
 }
