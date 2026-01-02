@@ -47,8 +47,10 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
     
-    
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation("org.flywaydb:flyway-core")
     runtimeOnly("com.mysql:mysql-connector-j")
+
 }
 
 tasks.withType<Test> {

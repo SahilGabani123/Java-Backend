@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -37,7 +38,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 
 @RestController
-@RequestMapping("api/v1")
 @CrossOrigin(origins = "*")
 class EmployeeController {
 
@@ -53,7 +53,7 @@ class EmployeeController {
 		
 	}
 	
-	@GetMapping("/employees")
+	@GetMapping("api/v1/employees")
 	public ResponseEntity<ApiResponse> all(
 			@RequestParam(name = "page", defaultValue = "1") int page,
 			@RequestParam(name = "perPage", defaultValue = "10") int perPage,
@@ -101,10 +101,10 @@ class EmployeeController {
 	
 	// ================== CREATE ==================
 	@PostMapping(
-            value = "/employees",
+            value = "api/v1/employees",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    public ResponseEntity<ApiResponse> createEmployee(
+    public ResponseEntity<ApiResponse> createEmployeeV1(
             @RequestParam("name") String name,
             @RequestParam("field") String field,
             @RequestParam("joining_date") String joiningDateStr,
@@ -113,6 +113,7 @@ class EmployeeController {
             @RequestParam("company_email") String companyEmail,
             @RequestParam("personal_email") String personalEmail,
             @RequestParam("phone_number") String phoneNumber
+
     ) {
 		if (repository.existsByName(name)) {
 		    throw new IllegalArgumentException("Employee with this name already exists");
@@ -121,7 +122,7 @@ class EmployeeController {
         Instant joiningDate = toInstant(joiningDateStr, "Joining Date");
         Instant leavingDate = toInstant(leavingDateStr, "Leaving Date");
         Employee employee = new Employee(
-                name, position, joiningDate, leavingDate, 0,
+                name, null, position, joiningDate, leavingDate, 0,
                 personalEmail, companyEmail, field, phoneNumber, new ArrayList<>(), 0L
         );
 
@@ -130,8 +131,47 @@ class EmployeeController {
                 new ApiResponse(true, "Employee created successfully", employee)
         );
     }
+	
+	// ================== CREATE ==================
+		@PostMapping(
+	            value = "api/v2/employees",
+	            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
+	    )
+	    public ResponseEntity<ApiResponse> createEmployeeV2(
+	            @RequestParam("name") String name,
+	            @RequestParam("field") String field,
+	            @RequestParam("joining_date") String joiningDateStr,
+	            @RequestParam(value = "leaving_date", required = false) String leavingDateStr,
+	            @RequestParam("position") String position,
+	            @RequestParam("company_email") String companyEmail,
+	            @RequestParam("personal_email") String personalEmail,
+	            @RequestParam("phone_number") String phoneNumber,
+	            @RequestParam(value = "dob", required = false) String dobStr
 
-	@GetMapping("/employees/{id}")
+	    ) {
+			if (repository.existsByName(name)) {
+			    throw new IllegalArgumentException("Employee with this name already exists");
+			}
+			
+	        Instant joiningDate = toInstant(joiningDateStr, "Joining Date");
+	        Instant leavingDate = toInstant(leavingDateStr, "Leaving Date");
+	        Instant dob = null;
+	        if (dobStr != null && !dobStr.isBlank()) {
+		         dob = toInstant(dobStr, "Date Of Birth");
+	        }
+	        Employee employee = new Employee(
+	                name, dob, position, joiningDate, leavingDate, 0,
+	                personalEmail, companyEmail, field, phoneNumber, new ArrayList<>(), 0L
+	        );
+
+	        repository.save(employee);
+	        return ResponseEntity.ok(
+	                new ApiResponse(true, "Employee created successfully", employee)
+	        );
+	    }
+	
+
+	@GetMapping("api/v1/employees/{id}")
 	ApiResponse one(@PathVariable("id") Long id) {
 		 Employee employee = repository.findById(id)
 		            .orElseThrow(() -> new EmployeeNotFoundException(id));
@@ -144,7 +184,7 @@ class EmployeeController {
 		    return new ApiResponse(true, "Employee details fetched successfully", employee);
 	}
 
-	@DeleteMapping("/employees/{id}")
+	@DeleteMapping("api/v1/employees/{id}")
 	public ResponseEntity<ApiResponse> delete(@PathVariable("id") Long id) {
 
 		if (!repository.existsById(id)) {
@@ -157,7 +197,7 @@ class EmployeeController {
 	}
 
 	// ================== UPDATE (PARTIAL) ==================
-	@PutMapping("/employees/{id}")
+	@PutMapping("api/v1/employees/{id}")
 	public ResponseEntity<ApiResponse> updateEmployee(
 	        @PathVariable("id")  Long id,
 	        @RequestBody UpdateEmployeeRequest req
@@ -189,6 +229,11 @@ class EmployeeController {
 	    if (req.getPhoneNumber() != null)
 	        employee.setPhoneNumber(req.getPhoneNumber());
 
+	    if (req.getDob() != null) {
+	        Instant dob = toInstant(req.getDob(), "Date Of Birth");
+	        employee.setDob(dob);
+	    }
+	    
 	    if (req.getField() != null)
 	        employee.setField(req.getField());
 
@@ -206,7 +251,7 @@ class EmployeeController {
 
 	    try {
 	        LocalDate localDate = LocalDate.parse(dateStr, DATE_FORMATTER);
-	        return localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+	        return localDate.atStartOfDay(ZoneOffset.UTC).toInstant();
 	    } catch (DateTimeParseException ex) {
 	        throw new IllegalArgumentException(
 	                fieldName + " must be in dd/MM/yyyy format"

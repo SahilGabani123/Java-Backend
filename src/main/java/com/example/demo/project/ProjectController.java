@@ -1,7 +1,5 @@
 package com.example.demo.project;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -9,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.employee.ApiResponse;
-import com.example.demo.employee.Employee;
 import com.example.demo.employee.EmployeeRepository;
 import com.example.demo.employee.PageMeta;
 import com.example.demo.exception.EmployeeNotFoundException;

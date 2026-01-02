@@ -1,7 +1,11 @@
 package com.example.demo.employee.model;
 
+import java.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Past;
 
 public class UpdateEmployeeRequest {
 
@@ -26,6 +30,10 @@ public class UpdateEmployeeRequest {
     private String phoneNumber;
 
     private String field;
+    
+    @Past(message = "DOB must be in the past")
+    @JsonProperty("dob")
+    private String dob;
 
     // ===== Getters & Setters =====
 
@@ -92,4 +100,13 @@ public class UpdateEmployeeRequest {
     public void setField(String field) {
         this.field = field;
     }
+    
+    public String getDob() {
+        return dob;
+    }
+
+    public void setDob(String dob) {
+        this.dob = dob;
+    }
+
 }
