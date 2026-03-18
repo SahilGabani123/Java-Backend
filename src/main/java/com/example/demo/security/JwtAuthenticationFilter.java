@@ -57,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write(String.format(
-                    "{\"status\":false,\"status_code\":\"%s\",\"message\":\"%s\"}",
+                    "{\"status\":false,\"status_code\":%d,\"message\":\"%s\"}",
                     ex.getCode(), ex.getMessage()
             ));
         }

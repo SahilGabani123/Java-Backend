@@ -3,7 +3,8 @@ public enum JwtErrorCode {
     TOKEN_EXPIRED(401, "Token has expired"),
     INVALID_TOKEN(400, "Invalid Access token"),
     TOKEN_MALFORMED(400, "Malformed Access token"),
-    TOKEN_SIGNATURE_INVALID(401, "Invalid JWT signature");
+    TOKEN_SIGNATURE_INVALID(401, "Invalid JWT signature"),
+    TOKEN_BLACKLISTED(401, "Token has been invalidated. Please login again.");
 
     private final int code;
     private final String message;

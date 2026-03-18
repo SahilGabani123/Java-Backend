@@ -34,7 +34,7 @@ public class User {
 	private String position;
 
 	@Column(name = "joining_date", nullable = false)
-	@JsonFormat(pattern = "dd/MM/yyyy", timezone = "UTC")
+	@JsonFormat(timezone = "UTC")
 	@PastOrPresent(message = "Joining date cannot be in the future")
 	private Instant joiningDate;
 
