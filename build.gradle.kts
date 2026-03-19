@@ -24,8 +24,6 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	
-	
-	
     // JPA + Validation + Actuator
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     
@@ -50,7 +48,9 @@ dependencies {
     
     
     // DB
-    runtimeOnly("com.h2database:h2")
+	implementation("org.xerial:sqlite-jdbc:3.45.1.0")
+	implementation("org.hibernate.orm:hibernate-community-dialects:7.2.0.Final")
+	
 
 }
 
