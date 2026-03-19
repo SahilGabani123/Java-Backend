@@ -5,7 +5,9 @@ import com.example.demo.auth.model.SignupRequest;
 import com.example.demo.exception.EmailAlreadyExistsException;
 import com.example.demo.exception.InvalidCredentialsException;
 import com.example.demo.exception.PhoneAlreadyExistsException;
+import com.example.demo.security.JwtService;
 import com.example.demo.security.JwtUtil;
+import com.example.demo.security.TokenBlacklistService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,11 +19,15 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final BCryptPasswordEncoder passwordEncoder;
 	private final JwtUtil jwtUtil;
+	private final JwtService jwtService;
+	private final TokenBlacklistService tokenBlacklistService;
 
-	public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+	public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil, JwtService jwtService, TokenBlacklistService tokenBlacklistService) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.jwtUtil = jwtUtil;
+		this.jwtService = jwtService;
+		this.tokenBlacklistService = tokenBlacklistService;
 	}
 
 
@@ -56,10 +62,28 @@ public class UserService {
 			throw new InvalidCredentialsException("Invalid email or password");
 		}
 
-		return jwtUtil.generateToken(user);
+		// Blacklist old token if user has an active token (single login functionality)
+		if (user.getActiveToken() != null && !user.getActiveToken().isEmpty()) {
+			try {
+				tokenBlacklistService.blacklist(user.getActiveToken(), jwtService.getExpiration(user.getActiveToken()));
+			} catch (Exception e) {
+				// Ignore errors when blacklisting old token
+			}
+		}
+
+		// Generate new token and store it as active token
+		String newToken = jwtUtil.generateToken(user);
+		user.setActiveToken(newToken);
+		userRepository.save(user);
+
+		return newToken;
 	}
 
 	public User getUserByEmail(String email) {
 		return userRepository.findByEmail(email).orElse(null);
+	}
+
+	public User save(User user) {
+		return userRepository.save(user);
 	}
 }

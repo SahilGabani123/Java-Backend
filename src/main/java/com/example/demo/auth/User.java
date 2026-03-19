@@ -58,6 +58,10 @@ public class User {
 	@Column(nullable = false)
 	private String password;
 
+	@JsonIgnore
+	@Column(name = "active_token", length = 1000)
+	private String activeToken;
+
 	public Long getId() {
 		return id;
 	}
@@ -120,6 +124,14 @@ public class User {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public String getActiveToken() {
+		return activeToken;
+	}
+
+	public void setActiveToken(String activeToken) {
+		this.activeToken = activeToken;
 	}
 
 }

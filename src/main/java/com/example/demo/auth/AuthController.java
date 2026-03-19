@@ -63,6 +63,18 @@ public class AuthController {
             String token = authHeader.substring(7);
             // Blacklist the token so it cannot be used again
             tokenBlacklistService.blacklist(token, jwtService.getExpiration(token));
+            
+            // Clear the active token from the user
+            try {
+                String email = jwtService.getAuthentication(token).getName();
+                User user = userService.getUserByEmail(email);
+                if (user != null) {
+                    user.setActiveToken(null);
+                    userService.save(user);
+                }
+            } catch (Exception e) {
+                // Ignore errors when clearing active token
+            }
         }
 
         return ResponseEntity.ok(
@@ -70,37 +82,4 @@ public class AuthController {
         );
     }
 
-    @PostMapping("auth/revoke")
-    public ResponseEntity<ApiResponse> revokeToken(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            
-            try {
-                // For expired tokens, we need to extract expiration from the expired token itself
-                Date expiration;
-                try {
-                    // Try to get expiration from valid token first
-                    expiration = jwtService.getExpiration(token);
-                } catch (Exception e) {
-                    // If token is expired, extract expiration from expired token
-                    expiration = jwtService.getExpirationFromExpiredToken(token);
-                }
-                
-                // Blacklist the token so it cannot be used again
-                tokenBlacklistService.blacklist(token, expiration);
-                
-                return ResponseEntity.ok(
-                        new ApiResponse(true, "Token revoked successfully.")
-                );
-            } catch (Exception e) {
-                return ResponseEntity.badRequest()
-                        .body(new ApiResponse(false, "Invalid token: " + e.getMessage()));
-            }
-        }
-
-        return ResponseEntity.badRequest()
-                .body(new ApiResponse(false, "No authorization header provided."));
-    }
 }
