@@ -68,7 +68,7 @@ public class Employee {
 	@Column(name = "leaving_date")
 	private Instant leavingDate;
 
-	@PositiveOrZero
+	
 	private int experience;
 
 	@NotNull(message = "Personal email must not be null")

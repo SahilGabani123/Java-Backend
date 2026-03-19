@@ -25,6 +25,12 @@ public class JwtService {
 	private static final String BASE64_SECRET = "xyHp+3+W5+fgpjt+9uDStaL8KsJmuus+KsGgEJpNby1U3N8izpxlbJBLw8jYZvI2DvswJD7DFb/+wg9PanrW1Q==";
 	private final SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(BASE64_SECRET));
 
+	private final TokenBlacklistService tokenBlacklistService;
+
+	public JwtService(TokenBlacklistService tokenBlacklistService) {
+		this.tokenBlacklistService = tokenBlacklistService;
+	}
+
 	private Claims extractAllClaims(String token) {
 		return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
 	}
@@ -37,6 +43,38 @@ public class JwtService {
 		return extractExpiration(token).before(new Date());
 	}
 
+	// 🔹 Expose expiration date for blacklisting on logout (valid token)
+	public Date getExpiration(String token) {
+		return extractExpiration(token);
+	}
+
+	/**
+	 * Extracts the expiration date from an EXPIRED token.
+	 * Uses the claims embedded in ExpiredJwtException — the token signature
+	 * is still verified, so forged tokens are rejected.
+	 *
+	 * @param token the expired JWT string
+	 * @return the expiration Date from the token claims
+	 * @throws JwtAuthenticationException if the token is malformed, has an invalid
+	 *                                    signature, or is not actually expired
+	 */
+	public Date getExpirationFromExpiredToken(String token) {
+		try {
+			extractAllClaims(token);
+			throw new JwtAuthenticationException(JwtErrorCode.INVALID_TOKEN);
+		} catch (ExpiredJwtException e) {
+			return e.getClaims().getExpiration();
+		} catch (MalformedJwtException e) {
+			throw new JwtAuthenticationException(JwtErrorCode.TOKEN_MALFORMED);
+		} catch (SignatureException e) {
+			throw new JwtAuthenticationException(JwtErrorCode.TOKEN_SIGNATURE_INVALID);
+		} catch (JwtAuthenticationException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new JwtAuthenticationException(JwtErrorCode.INVALID_TOKEN);
+		}
+	}
+
 	public boolean isValid(String token) {
 		try {
 			Claims claims = extractAllClaims(token);
@@ -47,6 +85,10 @@ public class JwtService {
 	}
 
 	public void validateToken(String token) {
+		// 🔹 Check blacklist first (token invalidated via logout)
+		if (tokenBlacklistService.isBlacklisted(token)) {
+			throw new JwtAuthenticationException(JwtErrorCode.TOKEN_BLACKLISTED);
+		}
 		try {
 			extractAllClaims(token);
 		} catch (ExpiredJwtException e) {

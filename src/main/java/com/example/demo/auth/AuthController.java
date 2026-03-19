@@ -4,11 +4,16 @@ import com.example.demo.auth.model.LoginRequest;
 import com.example.demo.auth.model.LoginResponse;
 import com.example.demo.auth.model.SignupRequest;
 import com.example.demo.employee.ApiResponse;
+import com.example.demo.security.JwtService;
+import com.example.demo.security.TokenBlacklistService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -16,9 +21,13 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final UserService userService;
+    private final JwtService jwtService;
+    private final TokenBlacklistService tokenBlacklistService;
 
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, JwtService jwtService, TokenBlacklistService tokenBlacklistService) {
         this.userService = userService;
+        this.jwtService = jwtService;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
 
     @PostMapping("auth/signup")
@@ -45,4 +54,32 @@ public class AuthController {
                 new ApiResponse(true, "Login successful", response)
         );
     }
+
+    @PostMapping("auth/logout")
+    public ResponseEntity<ApiResponse> logout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            // Blacklist the token so it cannot be used again
+            tokenBlacklistService.blacklist(token, jwtService.getExpiration(token));
+            
+            // Clear the active token from the user
+            try {
+                String email = jwtService.getAuthentication(token).getName();
+                User user = userService.getUserByEmail(email);
+                if (user != null) {
+                    user.setActiveToken(null);
+                    userService.save(user);
+                }
+            } catch (Exception e) {
+                // Ignore errors when clearing active token
+            }
+        }
+
+        return ResponseEntity.ok(
+                new ApiResponse(true, "Logout successful.")
+        );
+    }
+
 }
