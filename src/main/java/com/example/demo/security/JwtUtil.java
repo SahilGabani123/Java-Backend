@@ -17,9 +17,8 @@ import javax.crypto.SecretKey;
 
 @Component
 public class JwtUtil {
-
-//    private static final long EXPIRATION = 24 * 60 * 60 * 1000; // 1 day
-	private static final long EXPIRATION = 5 * 60 * 1000; // 5 minutes
+    private static final long EXPIRATION = 24 * 60 * 60 * 1000; // 1 day
+//	private static final long EXPIRATION = 5 * 60 * 1000; // 5 minutes
 
     private static final String BASE64_SECRET =
             "xyHp+3+W5+fgpjt+9uDStaL8KsJmuus+KsGgEJpNby1U3N8izpxlbJBLw8jYZvI2DvswJD7DFb/+wg9PanrW1Q==";
