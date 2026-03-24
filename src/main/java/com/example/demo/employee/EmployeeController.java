@@ -66,10 +66,7 @@ class EmployeeController {
 		PageRequest pageable = PageRequest.of(page - 1, perPage);
 
 	    Page<Employee> employeePage = repository.searchEmployees(
-	            field,
-	            position,
-	            search,
-	            pageable
+	            field, position, search, pageable
 	    );
 	    employeePage.getContent().forEach(employee -> {
 	    	  Long count = projectRepository.countByEmployeeId(employee.getId());

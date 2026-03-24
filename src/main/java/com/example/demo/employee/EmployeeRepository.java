@@ -8,27 +8,23 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
-	 @Query("""
-		        SELECT e FROM Employee e
-		        WHERE (:field IS NULL OR LOWER(e.field) = LOWER(:field))
-		        AND (:position IS NULL OR LOWER(e.position) = LOWER(:position))
-		          AND (
-		                :search IS NULL OR
-		                LOWER(e.name) LIKE LOWER(CONCAT('%', :search, '%')) OR
-		                LOWER(e.companyEmail) LIKE LOWER(CONCAT('%', :search, '%')) OR
-		                LOWER(e.personalEmail) LIKE LOWER(CONCAT('%', :search, '%')) OR
-		                e.phoneNumber LIKE CONCAT('%', :search, '%')
-		          )
-		    """)
-	 Page<Employee> searchEmployees(
-			 @Param("field") String field,
-	            @Param("position") String position,
-	            @Param("search") String search,
-	            Pageable pageable);
-	 
-	 
-	 boolean existsByName(String name);
-	 
-	 boolean existsByCompanyEmail(String companyEmail);
+	@Query(value = """
+			    SELECT * FROM employee e
+			    WHERE (:field IS NULL OR LOWER(e.field::text) = LOWER(:field))
+			    AND (:position IS NULL OR LOWER(e.position::text) = LOWER(:position))
+			      AND (
+			            :search IS NULL OR
+			            LOWER(e.name::text) LIKE LOWER(CONCAT('%', :search, '%')) OR
+			            LOWER(e.company_email::text) LIKE LOWER(CONCAT('%', :search, '%')) OR
+			            LOWER(e.personal_email::text) LIKE LOWER(CONCAT('%', :search, '%')) OR
+			            e.phone_number::text LIKE CONCAT('%', :search, '%')
+			      )
+			""", nativeQuery = true)
+	Page<Employee> searchEmployees(@Param("field") String field, @Param("position") String position,
+			@Param("search") String search, Pageable pageable);
+
+	boolean existsByName(String name);
+
+	boolean existsByCompanyEmail(String companyEmail);
 
 }

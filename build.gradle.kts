@@ -50,6 +50,7 @@ dependencies {
     
     
     // DB
+    runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("com.h2database:h2")
 
 }
